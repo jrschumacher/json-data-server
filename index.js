@@ -30,13 +30,17 @@ var requestFile = function(file, cb) {
       var data = '';
 
       res
-        .setEncoding('utf8')
+        .setEncoding('utf8');
+        
+      res
         .on('data', function (chunk) {
           debugRemote('\trecieved data');
           debugRemote('\trecieved data');
           jsonDataHash.update(chunk);
           data += chunk;
-        })
+        });
+
+      res
         .on('end', function() {
           debugRemote('\tend of data');
           debugRemote('\tend of data');
