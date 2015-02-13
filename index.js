@@ -123,12 +123,12 @@ app.get('/version', function(req, res) {
   if(req.query.is) {
     debugHttp('GET /version?is=' + req.query.is);
     debugHttp(req.query.is == jsonDataVersion);
-    res.json(req.query.is == jsonDataVersion);
+    res.jsonp(req.query.is == jsonDataVersion);
   }
   else {
     debugHttp('GET /version');
     debugHttp(jsonDataVersion);
-    res.json(jsonDataVersion);
+    res.jsonp(jsonDataVersion);
   }
 
   res.end();
@@ -138,7 +138,7 @@ app.get('/data', function(req, res) {
   debugHttp('GET /data');
   debugHttp(jsonData);
 
-  res.json(jsonData).end();
+  res.jsonp(jsonData).end();
 });
 
 app.listen(process.env.PORT || 3000, function() {
