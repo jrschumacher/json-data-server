@@ -3,6 +3,7 @@ var http = require('http');
 var path = require('path');
 var crypto = require('crypto');
 var async = require('async');
+var yaml = require('js-yaml');
 var app = express();
 
 var debugRemote = require('debug')('remote');
@@ -22,15 +23,20 @@ var requestFile = function(file, cb) {
     .request({
       method: 'GET',
       host: remoteHost,
-      path: remotePath +'/' + file + '.json'
+      path: remotePath +'/' + file + '.yaml'
     }, function(res) {
-      debugRemote('Requesting ' + file + '.json...');
-      debugRemote('Requesting ' + file + '.json...');
+      debugRemote('Requesting ' + file + '.yaml...');
+      debugRemote('Requesting ' + file + '.yaml...');
 
       var data = '';
 
       res
         .setEncoding('utf8');
+
+      res
+        .on('error', function(err) {
+          console.error('unable to connect', err);
+        });
         
       res
         .on('data', function (chunk) {
@@ -59,12 +65,13 @@ var buildDataStructure = function(files, result) {
     try {
 
       var file= files[i];
-      data[file] = JSON.parse(result);
+      data[file] = yaml.safeLoad(result);
 
     }
     catch(e) {
 
-      console.error(file + '.json is invalid');
+      console.error(file + '.yaml is invalid');
+      console.error(e);
 
       // notify via email of issue
 
@@ -83,7 +90,7 @@ var getData = function() {
 
     try {
 
-      files = JSON.parse(files);
+      files = yaml.safeLoad(files);
 
       if(typeof files === 'object') {
 
@@ -98,7 +105,7 @@ var getData = function() {
     }
     catch(e) {
 
-      console.error('index.json is invalid', e);
+      console.error('index.yaml is invalid', e);
 
       // notify via email of issue
 

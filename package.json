@@ -13,7 +13,7 @@
     "compression": "^1.4.0",
     "debug": "^2.1.1",
     "express": "^4.11.2",
+    "js-yaml": "^3.2.7",
     "response-time": "^2.2.0"
-  },
-  "main": "index.js"
+  }
 }
