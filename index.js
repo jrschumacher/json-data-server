@@ -65,7 +65,7 @@ var buildDataStructure = function(files, result) {
     try {
 
       var file= files[i];
-      data[file] = yaml.safeLoad(result);
+      data[file] = yaml.safeLoad(item);
 
     }
     catch(e) {
