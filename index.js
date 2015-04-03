@@ -37,7 +37,7 @@ var requestFile = function(file, cb) {
         .on('error', function(err) {
           console.error('unable to connect', err);
         });
-        
+
       res
         .on('data', function (chunk) {
           debugRemote('\trecieved data');
@@ -150,4 +150,11 @@ app.get('/data', function(req, res) {
 
 app.listen(process.env.PORT || 3000, function() {
   console.log('Express server listening to http://localhost:' + (process.env.PORT || 3000));
+}).on('error', function(err){
+  console.error('app.on.error:', err);
+});
+
+
+process.on('uncaughtException', function(err) {
+  console.error('process.on.error:', err);
 });
