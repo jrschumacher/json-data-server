@@ -14,10 +14,11 @@
     "debug": "^2.1.1",
     "express": "^4.11.2",
     "js-yaml": "^3.2.7",
+    "request": "^2.81.0",
     "response-time": "^2.2.0"
   },
   "engines": {
-      "node": "7.7.x",
-      "npm": "4.2.x"
+    "node": "7.7.x",
+    "npm": "4.2.x"
   }
 }

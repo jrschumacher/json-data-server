@@ -1,5 +1,5 @@
 var express = require('express');
-var http = require('http');
+var request = require('request');
 var path = require('path');
 var crypto = require('crypto');
 var async = require('async');
@@ -21,42 +21,16 @@ var remotePath = process.env.REMOTE_PATH || '';
 
 var requestFile = function(file, cb) {
   debugRemote('Initalizing request file');
-  http
-    .request({
-      method: 'GET',
-      host: remoteHost,
-      path: remotePath +'/' + file + '.yaml'
-    }, function(res) {
-      debugRemote('Requesting ' + file + '.yaml...');
-      debugRemote('Requesting ' + file + '.yaml...');
-
-      var data = '';
-
-      res
-        .setEncoding('utf8');
-
-      res
-        .on('error', function(err) {
-          console.error('unable to connect', err);
-        });
-
-      res
-        .on('data', function (chunk) {
-          debugRemote('\trecieved data');
-          debugRemote('\trecieved data');
-          jsonDataHash.update(chunk);
-          data += chunk;
-        });
-
-      res
-        .on('end', function() {
-          debugRemote('\tend of data');
-          debugRemote('\tend of data');
-          cb(null, data);
-        });
-
-    })
-    .end();
+  debugRemote('Requesting ' + file + '.yaml...');
+  request('http://' + remoteHost + remotePath +'/' + file + '.yaml', function(error, res, body) {
+    if(error) {
+      console.error('requestFile: unable to connect', error);
+    }
+    else if(body) {
+      jsonDataHash.update(body);
+      cb(null, body);
+    }
+  });
 };
 
 var buildDataStructure = function(files, result) {
@@ -157,7 +131,7 @@ app.get('/data', function(req, res) {
   debugHttp('GET /data');
   debugHttp(jsonData);
 
-  if(jsondata === null) {
+  if(jsonData === undefined) {
     getData(function() { res.jsonp(jsonData).end() });
   }
   else {
