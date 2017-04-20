@@ -8,6 +8,7 @@ var app = express();
 
 var debugRemote = require('debug')('remote');
 var debugHttp = require('debug')('http');
+var debugGetData = require('debug')('getdata');
 
 var GET_DATA_TIMEOUT = 15000;
 
@@ -19,6 +20,7 @@ var remoteHost = process.env.REMOTE_HOST || 'localhost';
 var remotePath = process.env.REMOTE_PATH || '';
 
 var requestFile = function(file, cb) {
+  debugRemote('Initalizing request file');
   http
     .request({
       method: 'GET',
@@ -82,29 +84,38 @@ var buildDataStructure = function(files, result) {
 
 };
 
-var getData = function() {
+var getData = function(cb) {
+  debugGetData('Running getData');
 
   jsonDataHash = crypto.createHash('md5');
 
   requestFile('index', function(x, files) {
+    debugGetData('Parsing files');
 
     try {
 
       files = yaml.safeLoad(files);
 
       if(typeof files === 'object') {
+        debugGetData('Mapping files');
 
         async.map(files, requestFile, function(err, result) {
+          debugGetData('Building structure');
           jsonData = buildDataStructure(files, result);
           jsonDataVersion = jsonDataHash.digest('hex');
+          debugGetData('Data length:', JSON.stringify(jsonData).length);
+          debugGetData('Data hash:', jsonDataVersion);
+          debugGetData('Calling callback');
+          if(typeof cb === 'function') cb();
 
+          debugGetData('Timeout set to', GET_DATA_TIMEOUT);
           setTimeout(getData, GET_DATA_TIMEOUT);
         });
 
       }
     }
     catch(e) {
-
+      debugGetData('Error occurred');
       console.error('index.yaml is invalid', e);
 
       // notify via email of issue
@@ -116,6 +127,7 @@ var getData = function() {
 };
 
 // Get data
+debugGetData('Init getData');
 getData();
 
 //--- EXPRESS ---//
@@ -145,7 +157,12 @@ app.get('/data', function(req, res) {
   debugHttp('GET /data');
   debugHttp(jsonData);
 
-  res.jsonp(jsonData).end();
+  if(jsondata === null) {
+    getData(function() { res.jsonp(jsonData).end() });
+  }
+  else {
+    res.jsonp(jsonData).end();
+  }
 });
 
 app.listen(process.env.PORT || 3000, function() {
